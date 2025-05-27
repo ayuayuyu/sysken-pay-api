@@ -1,39 +1,29 @@
 package main
 
 import (
-	"log"
 	"net/http"
+	"sysken-pay/models"
+	"sysken-pay/repositories"
 	"sysken-pay/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
+
+type CreateUserRequest struct {
+	UserName string `json:"user_name"`
+}
 
 func main() {
 
-	type Test struct {
-		gorm.Model
-		Code  string
-		Price uint
-	}
-
-	type Test1 struct {
-		gorm.Model
-		ID    uuid.UUID
-		Code  string
-		Price uint
-	}
-
 	db, err := utils.NewDBConnection()
-
 	if err != nil {
-		log.Fatal("error: ", err)
+		panic("データベースの接続できませんでした")
 	}
 
-	// Migrate the schema
-	db.AutoMigrate(&Test{})
-	db.AutoMigrate(&Test1{})
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		panic("Userのマイグレーションに失敗しました。")
+	}
 
 	// Ginのルーティング
 	r := gin.Default()
@@ -42,13 +32,30 @@ func main() {
 			"message": "Hello Database",
 		})
 	})
-	r.GET("/test", func(c *gin.Context) {
-		uid := uuid.Must(uuid.NewV7())
-		// Create
-		db.Create(&Test{Code: "D44", Price: 100})
-		db.Create(&Test1{ID: uid, Code: "D45", Price: 100})
+	r.POST("/user", func(c *gin.Context) {
+		var user models.User
+		var req CreateUserRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status":  "error",
+				"message": "リクエストの形式が正しくありません",
+			})
+			return
+		}
+		println(req.UserName)
+		user.Create(req.UserName)
+		err = repositories.CreateUser(db, &user)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"status":  "error",
+				"message": err,
+			})
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"status": "success",
+			"status":     "success",
+			"user_id":    user.ID,
+			"user_name":  user.Name,
+			"created_at": user.CreatedAt,
 		})
 	})
 

@@ -7,7 +7,7 @@ import (
 )
 
 type Purchase struct {
-	ID        int
+	ID        uint `gorm:"primaryKey"`
 	UserId    uuid.UUID
 	ItemId    int
 	CreatedAt time.Time

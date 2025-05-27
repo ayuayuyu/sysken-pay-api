@@ -8,7 +8,7 @@ import (
 )
 
 type Charge struct {
-	ID        int
+	ID        uint `gorm:"primaryKey"`
 	UserId    uuid.UUID
 	Amount    int
 	CreatedAt time.Time
