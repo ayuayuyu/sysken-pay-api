@@ -8,3 +8,9 @@ type Item struct {
 	Name    string
 	Price   int
 }
+
+func (Item *Item) Create(janCode string, name string, price int) {
+	Item.JanCode = janCode
+	Item.Name = name
+	Item.Price = price
+}
