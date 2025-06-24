@@ -14,3 +14,7 @@ func (Item *Item) Create(janCode string, name string, price int) {
 	Item.Name = name
 	Item.Price = price
 }
+
+func (Item *Item) Read(janCode string) {
+	Item.JanCode = janCode
+}

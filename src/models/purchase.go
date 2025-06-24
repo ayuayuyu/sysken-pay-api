@@ -12,3 +12,8 @@ type Purchase struct {
 	ItemId    int
 	CreatedAt time.Time
 }
+
+func (purchase *Purchase) Create(userId uuid.UUID, itemId int) {
+	purchase.UserId = userId
+	purchase.ItemId = itemId
+}
